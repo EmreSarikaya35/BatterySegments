@@ -63,3 +63,7 @@ open build/Build/Products/Release/BatterySegments.app --args -demo
 ## Türkçe
 
 Menü çubuğundaki pil simgesine tıklayın. Kalan süre ve her uygulamanın bu süreden ne kadar götürdüğü tek bir pil çubuğunda görünür. Bir uygulamanın dilimini pencerenin dışına sürükleyip bırakmak o uygulamayı kapatır. İlk açılıştaki Gatekeeper uyarısı için: **Sistem Ayarları > Gizlilik ve Güvenlik > Yine de Aç**.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,15 @@
+BatterySegments - Kurulum
+
+1. BatterySegments'i Applications klasörüne sürükleyin ve açın.
+2. "Apple, BatterySegments'in kötü amaçlı yazılım içermediğini doğrulayamadı"
+   uyarısı çıkar. Bu beklenen bir durum: uygulama Apple'a ücretli üyelik
+   olmadan dağıtılıyor. "Bitti"ye basın.
+3. Sistem Ayarları > Gizlilik ve Güvenlik sayfasının altındaki
+   "Yine de Aç" düğmesine basın ve uygulamayı tekrar açın.
+
+Terminal ile alternatif:
+  xattr -dr com.apple.quarantine /Applications/BatterySegments.app
+
+Kullanım: menü çubuğundaki pil ikonuna tıklayın. Bir uygulamanın dilimini
+pencerenin dışına sürükleyip bırakmak o uygulamayı kapatır.
+Girişte otomatik başlatma: pencereye sağ tıklayın > Launch at Login.

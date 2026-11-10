@@ -1,0 +1,43 @@
+name: BatterySegments
+options:
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "5"
+    ARCHS: arm64
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    ENABLE_APP_SANDBOX: NO
+    GENERATE_INFOPLIST_FILE: YES
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  BatterySegments:
+    type: application
+    platform: macOS
+    sources: [Sources]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.emre.batterysegments
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: "© 2026 Emre"
+  BatterySegmentsTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [Tests]
+    dependencies:
+      - target: BatterySegments
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: local.emre.batterysegments.tests
+schemes:
+  BatterySegments:
+    build:
+      targets:
+        BatterySegments: all
+        BatterySegmentsTests: [test]
+    test:
+      targets: [BatterySegmentsTests]
+      commandLineArguments:
+        "-demo": true

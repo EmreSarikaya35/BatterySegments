@@ -1,0 +1,5 @@
+build/
+*.xcodeproj
+*.dmg
+.DS_Store
+plan.md

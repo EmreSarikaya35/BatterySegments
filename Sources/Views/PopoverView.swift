@@ -5,6 +5,7 @@ struct PopoverView: View {
     @ObservedObject var store: Store
     @State private var hoverSettings = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -44,19 +45,48 @@ struct PopoverView: View {
 
             Color.primary.opacity(0.12).frame(height: 1).padding(.top, 6)
 
-            Button {
-                NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Battery-Settings.extension")!)
-            } label: {
-                Text("Battery Settings…")
-                    .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
-                    .padding(.horizontal, 8)
-                    .background(.primary.opacity(hoverSettings ? 0.08 : 0), in: RoundedRectangle(cornerRadius: 6))
-                    .contentShape(Rectangle())
+            HStack {
+                Text("Low Power Mode")
+                Spacer()
+                // The switch only follows the system: it flips once macOS reports the change,
+                // so cancelling the one-time password prompt leaves it where it was.
+                Toggle("Low Power Mode", isOn: Binding(get: { lowPower }, set: LowPowerMode.set))
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                    .labelsHidden()
+            }
+            .frame(height: 24)
+            .padding(.top, 6)
+            .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)
+                .receive(on: RunLoop.main)) { _ in
+                    lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
+            }
+
+            HStack(spacing: 4) {
+                Button {
+                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Battery-Settings.extension")!)
+                } label: {
+                    Text("Battery Settings…")
+                        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+                        .padding(.horizontal, 8)
+                        .background(.primary.opacity(hoverSettings ? 0.08 : 0), in: RoundedRectangle(cornerRadius: 6))
+                        .contentShape(Rectangle())
+                }
+                .onHover { hoverSettings = $0 }
+                .padding(.leading, -8)
+
+                Button { NSApp.terminate(nil) } label: {
+                    Image(systemName: "power")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 22, height: 22)
+                        .contentShape(Rectangle())
+                }
+                .help("Quit BatterySegments")
+                .accessibilityLabel("Quit BatterySegments")
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, -8)
-            .padding(.top, 8)
-            .onHover { hoverSettings = $0 }
+            .padding(.top, 2)
         }
         .font(.system(size: 13))
         .padding(.horizontal, Metrics.padH)

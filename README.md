@@ -16,6 +16,7 @@ Click the battery icon in the menu bar. One battery-shaped bar shows the time yo
 - **Live estimate**: see `+1:10` of extra battery time before you even let go.
 - **Safe**: uses a polite quit only, never force quit. Apps with unsaved work stay open and you get a notice.
 - **No dragging needed**: right-click a slice > `Quit …`, or press `⌫` on a focused slice. VoiceOver labels included.
+- **Low Power Mode switch** right in the popover, plus a small quit button. See [the note below](#low-power-mode-switch) on what the switch installs.
 - **Native look**: menu bar icon matches the system battery indicator; Liquid Glass popover on macOS 26+.
 - **Light on battery itself**: samples only while the popover is open.
 - No account, no network, no dependencies. SwiftUI + AppKit + IOKit only.
@@ -37,6 +38,21 @@ xattr -dr com.apple.quarantine /Applications/BatterySegments.app
 ```
 
 To start it at login: right-click the popover > `Launch at Login`.
+
+### Low Power Mode switch
+
+macOS only lets an administrator change Low Power Mode. The first time you use the switch, the app asks for your password once and installs `/etc/sudoers.d/batterysegments`. That file lets your user run exactly two commands without a password, and nothing else:
+
+```
+/usr/bin/pmset -a lowpowermode 0
+/usr/bin/pmset -a lowpowermode 1
+```
+
+After that the switch works without asking. The file stays if you delete the app; if you never use the switch, nothing is installed. To remove it:
+
+```bash
+sudo rm /etc/sudoers.d/batterysegments
+```
 
 ## Build from source
 

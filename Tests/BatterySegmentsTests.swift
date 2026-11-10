@@ -54,6 +54,17 @@ final class BatteryInfoTests: XCTestCase {
     }
 }
 
+final class LowPowerModeTests: XCTestCase {
+    func testSudoersRuleOnlyForPlainUserNames() {
+        XCTAssertEqual(LowPowerMode.sudoersRule(user: "emre"),
+                       "emre ALL=(root) NOPASSWD: /usr/bin/pmset -a lowpowermode 0, /usr/bin/pmset -a lowpowermode 1")
+        XCTAssertNotNil(LowPowerMode.sudoersRule(user: "a.b-c_1"))
+        for bad in ["", "a b", "a'b", "a\nALL", "x,ALL", "é", "a$(id)", "a\"b"] {
+            XCTAssertNil(LowPowerMode.sudoersRule(user: bad), bad)
+        }
+    }
+}
+
 final class ProcessEnergyTests: XCTestCase {
     private func s(_ ppid: pid_t, energy: UInt64 = 0, cpu: UInt64 = 0) -> ProcSample {
         ProcSample(ppid: ppid, energy: energy, cpu: cpu)

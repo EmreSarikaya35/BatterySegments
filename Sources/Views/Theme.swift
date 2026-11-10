@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Metrics {
-    static let popoverSize = CGSize(width: 360, height: 257)
+    static let popoverSize = CGSize(width: 360, height: 281)
     static let padH: CGFloat = 14
     static let barWidth: CGFloat = 312
     static let barHeight: CGFloat = 96

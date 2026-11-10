@@ -12,4 +12,4 @@ Terminal ile alternatif:
 
 Kullanım: menü çubuğundaki pil ikonuna tıklayın. Bir uygulamanın dilimini
 pencerenin dışına sürükleyip bırakmak o uygulamayı kapatır.
-Girişte otomatik başlatma: pencereye sağ tıklayın > Launch at Login.
+Girişte otomatik başlatma: penceredeki Settings bölümünde Launch at Login.

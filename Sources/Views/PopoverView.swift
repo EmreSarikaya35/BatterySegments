@@ -45,18 +45,20 @@ struct PopoverView: View {
 
             Color.primary.opacity(0.12).frame(height: 1).padding(.top, 6)
 
-            HStack {
-                Text("Low Power Mode")
-                Spacer()
-                // The switch only follows the system: it flips once macOS reports the change,
-                // so cancelling the one-time password prompt leaves it where it was.
-                Toggle("Low Power Mode", isOn: Binding(get: { lowPower }, set: LowPowerMode.set))
-                    .toggleStyle(.switch)
-                    .controlSize(.mini)
-                    .labelsHidden()
-            }
-            .frame(height: 24)
-            .padding(.top, 6)
+            Text("Settings")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .frame(height: 14)
+                .padding(.top, 8)
+
+            // The switch only follows the system: it flips once macOS reports the change,
+            // so cancelling the one-time password prompt leaves it where it was.
+            settingRow("Low Power Mode", isOn: Binding(get: { lowPower }, set: LowPowerMode.set))
+                .padding(.top, 2)
+            settingRow("Launch at Login", isOn: Binding(get: { launchAtLogin }, set: { on in
+                try? (on ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister())
+                launchAtLogin = SMAppService.mainApp.status == .enabled
+            }))
             .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)
                 .receive(on: RunLoop.main)) { _ in
                     lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
@@ -97,13 +99,15 @@ struct PopoverView: View {
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: store.minutes)
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: store.segments.map(\.width))
         .animation(.spring(response: 0.5, dampingFraction: 0.85), value: store.drag.previewID)
-        // The only setting; right-click the popover (no settings window by design).
-        .contextMenu {
-            Toggle("Launch at Login", isOn: Binding(get: { launchAtLogin }, set: { on in
-                try? (on ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister())
-                launchAtLogin = SMAppService.mainApp.status == .enabled
-            }))
+    }
+
+    private func settingRow(_ title: String, isOn: Binding<Bool>) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Toggle(title, isOn: isOn).toggleStyle(.switch).controlSize(.mini).labelsHidden()
         }
+        .frame(height: 24)
     }
 
     private var onBattery: Bool {

@@ -16,7 +16,7 @@ Click the battery icon in the menu bar. One battery-shaped bar shows the time yo
 - **Live estimate**: see `+1:10` of extra battery time before you even let go.
 - **Safe**: uses a polite quit only, never force quit. Apps with unsaved work stay open and you get a notice.
 - **No dragging needed**: right-click a slice > `Quit …`, or press `⌫` on a focused slice. VoiceOver labels included.
-- **Low Power Mode switch** right in the popover, plus a small quit button. See [the note below](#low-power-mode-switch) on what the switch installs.
+- **Settings in the popover**: Launch at Login and a Low Power Mode switch, plus a small quit button. See [the note below](#low-power-mode-switch) on what the switch installs.
 - **Native look**: menu bar icon matches the system battery indicator; Liquid Glass popover on macOS 26+.
 - **Light on battery itself**: samples only while the popover is open.
 - No account, no network, no dependencies. SwiftUI + AppKit + IOKit only.
@@ -37,7 +37,7 @@ Or from Terminal:
 xattr -dr com.apple.quarantine /Applications/BatterySegments.app
 ```
 
-To start it at login: right-click the popover > `Launch at Login`.
+To start it at login: turn on `Launch at Login` under Settings in the popover.
 
 ### Low Power Mode switch
 

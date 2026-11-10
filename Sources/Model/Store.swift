@@ -68,10 +68,10 @@ final class Store: ObservableObject {
 
     func opened() {
         quitApps = []
-        refreshBattery()
         sampler?.cancel()
         sampler = Task {
             while !Task.isCancelled {
+                refreshBattery() // the estimate can appear without a power-source notification
                 sample()
                 try? await Task.sleep(for: .seconds(2))
             }

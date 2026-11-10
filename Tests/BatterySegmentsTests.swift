@@ -45,6 +45,15 @@ final class SegmentModelTests: XCTestCase {
     }
 }
 
+final class BatteryInfoTests: XCTestCase {
+    func testFallbackMinutesWhenSystemHasNoEstimate() {
+        XCTAssertEqual(BatteryInfo.fallbackMinutes(average: 375, milliampHours: 2791, milliamps: -778), 375)
+        XCTAssertEqual(BatteryInfo.fallbackMinutes(average: 65535, milliampHours: 2800, milliamps: -700), 240)
+        XCTAssertNil(BatteryInfo.fallbackMinutes(average: 65535, milliampHours: 2800, milliamps: 254)) // not discharging
+        XCTAssertNil(BatteryInfo.fallbackMinutes(average: nil, milliampHours: nil, milliamps: -700))
+    }
+}
+
 final class ProcessEnergyTests: XCTestCase {
     private func s(_ ppid: pid_t, energy: UInt64 = 0, cpu: UInt64 = 0) -> ProcSample {
         ProcSample(ppid: ppid, energy: energy, cpu: cpu)

@@ -26,27 +26,44 @@ struct BatteryInfo: Equatable {
         let current = battery[kIOPSCurrentCapacityKey] as? Int ?? 0
         let maximum = battery[kIOPSMaxCapacityKey] as? Int ?? 100
         info.percent = maximum > 0 ? current * 100 / maximum : 0
+        let smart = smartBattery()
+        info.watts = smart?.watts
         if battery[kIOPSPowerSourceStateKey] as? String == kIOPSACPowerValue {
             info.state = .pluggedIn(charging: battery[kIOPSIsChargingKey] as? Bool ?? false)
         } else {
-            let seconds = IOPSGetTimeRemainingEstimate() // < 0: unknown / unlimited
-            info.state = seconds >= 0 ? .onBattery(minutes: seconds / 60) : .calculating
+            // The system estimate can stay unknown for a long time after unplugging
+            // (pmset shows "no estimate"), so fall back to the battery gauge's own numbers.
+            let seconds = IOPSGetTimeRemainingEstimate() // < 0: unknown
+            let minutes = seconds >= 0 ? seconds / 60 : smart?.minutes
+            info.state = minutes.map { .onBattery(minutes: $0) } ?? .calculating
         }
-        info.watts = smartBatteryWatts()
         return info
     }
 
-    /// |InstantAmperage (mA)| x Voltage (mV) from the AppleSmartBattery registry entry.
-    private static func smartBatteryWatts() -> Double? {
+    /// Power draw and a time-to-empty fallback from the AppleSmartBattery registry entry.
+    private static func smartBattery() -> (watts: Double, minutes: Double?)? {
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
         guard service != 0 else { return nil }
         defer { IOObjectRelease(service) }
+        func property(_ key: String) -> Any? {
+            IORegistryEntryCreateCFProperty(service, key as CFString, kCFAllocatorDefault, 0)?.takeRetainedValue()
+        }
+        let data = property("BatteryData") as? [String: Any] ?? [:]
         func number(_ key: String) -> Double? {
-            let value = IORegistryEntryCreateCFProperty(service, key as CFString, kCFAllocatorDefault, 0)?
-                .takeRetainedValue() as? NSNumber
-            return value.map { Double($0.int64Value) } // amperage is a negative value stored unsigned
+            // amperage is a negative value stored unsigned, hence int64Value
+            ((data[key] ?? property(key)) as? NSNumber).map { Double($0.int64Value) }
         }
         guard let milliamps = number("InstantAmperage"), let millivolts = number("Voltage") else { return nil }
-        return abs(milliamps) * millivolts / 1e6
+        return (abs(milliamps) * millivolts / 1e6,
+                fallbackMinutes(average: number("AvgTimeToEmpty"), milliampHours: number("AppleRawCurrentCapacity"),
+                                milliamps: milliamps))
+    }
+
+    /// The gauge's averaged time to empty when it has one (65535 = unknown),
+    /// else remaining charge / current draw while discharging (negative current).
+    static func fallbackMinutes(average: Double?, milliampHours: Double?, milliamps: Double) -> Double? {
+        if let average, average > 0, average < 65535 { return average }
+        if let milliampHours, milliamps < 0 { return milliampHours / -milliamps * 60 }
+        return nil
     }
 }

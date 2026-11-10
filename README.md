@@ -18,6 +18,7 @@ Click the battery icon in the menu bar. One battery-shaped bar shows the time yo
 - **No dragging needed**: right-click a slice > `Quit …`, or press `⌫` on a focused slice. VoiceOver labels included.
 - **Settings in the popover**: Launch at Login and a Low Power Mode switch, plus a small quit button. See [the note below](#low-power-mode-switch) on what the switch installs.
 - **Native look**: menu bar icon matches the system battery indicator; Liquid Glass popover on macOS 26+.
+- **Stays where you put it**: hold `⌘` and drag the icon to move it in the menu bar; macOS remembers the spot across restarts of the app.
 - **Light on battery itself**: samples only while the popover is open.
 - No account, no network, no dependencies. SwiftUI + AppKit + IOKit only.
 
@@ -72,7 +73,7 @@ open build/Build/Products/Release/BatterySegments.app --args -demo
 
 ## How it works
 
-- Battery level, power source and time left come from IOKit power sources (event driven, no polling).
+- Battery level, power source and time left come from IOKit power sources. When macOS has no estimate yet (common right after unplugging), the battery gauge's own average is used instead of showing "Calculating…".
 - Per-app energy comes from `proc_pid_rusage` billed energy, with helper processes (Chrome, Electron) folded into their app.
 - Quitting an app that draws a share `s` of total power turns `t` minutes left into `t / (1 - s)`.
 

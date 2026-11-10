@@ -123,16 +123,20 @@ final class DemoFlowTests: XCTestCase {
     private func settle() async throws { try await Task.sleep(for: .milliseconds(100)) }
 
     private func snapshot(_ name: String) throws {
-        let renderer = ImageRenderer(content: PopoverView(store: store).background(Color(red: 0.1, green: 0.16, blue: 0.42))
-            .environment(\.colorScheme, .dark))
-        renderer.scale = 2
+        // A real window instead of ImageRenderer, which cannot draw AppKit controls (the switches).
+        let host = NSHostingView(rootView: PopoverView(store: store)
+            .background(Color(red: 0.1, green: 0.16, blue: 0.42)))
+        host.frame = CGRect(origin: .zero, size: Metrics.popoverSize)
+        let window = NSWindow(contentRect: host.frame, styleMask: .borderless, backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.contentView = host
+        host.layoutSubtreeIfNeeded()
         let dir = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("build/snapshots")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        // App icons make the renderer emit HDR (PQ); convert to sRGB or white comes out gray.
-        let image = CIImage(cgImage: try XCTUnwrap(renderer.cgImage))
-        let png = try XCTUnwrap(CIContext().pngRepresentation(of: image, format: .RGBA8,
-                                                              colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!))
+        let rep = try XCTUnwrap(host.bitmapImageRepForCachingDisplay(in: host.bounds))
+        host.cacheDisplay(in: host.bounds, to: rep)
+        let png = try XCTUnwrap(rep.representation(using: .png, properties: [:]))
         try png.write(to: dir.appendingPathComponent("\(name).png"))
     }
 

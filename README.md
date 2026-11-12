@@ -26,7 +26,7 @@ Numbers are **estimates** and will not match Activity Monitor exactly. While plu
 
 ## Install
 
-Requires macOS 14 or later, Apple Silicon.
+Requires macOS 13 (Ventura) or later. Runs on both Apple Silicon and Intel Macs.
 
 1. Download `BatterySegments.dmg` from [Releases](../../releases/latest).
 2. Drag `BatterySegments.app` to `Applications` and open it.

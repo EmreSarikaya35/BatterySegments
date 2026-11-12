@@ -105,10 +105,7 @@ struct BatteryBar: View {
             }
             .contextMenu { if draggable { Button("Quit \(s.name)") { store.quit(s.id) } } }
             .focusable(draggable)
-            .onKeyPress(.delete) {
-                store.quit(s.id)
-                return .handled
-            }
+            .onDeleteCommand { store.quit(s.id) }
             .accessibilityElement()
             .accessibilityLabel(draggable ? "\(s.name), \(s.gain) minutes, quit" : s.name)
             .accessibilityAction(named: "Quit") { store.quit(s.id) }

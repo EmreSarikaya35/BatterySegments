@@ -4,6 +4,10 @@
 
 Click the battery icon in the menu bar. One battery-shaped bar shows the time you have left and, as colored slices, how much of it each running app is costing you. Drag a slice out of the popover and drop it: the app quits and the time left goes up.
 
+<a href="docs/promo.mp4"><img src="docs/promo.gif" width="720" alt="23-second demo: clicking the menu bar icon, then dragging Chrome out of the battery to gain 1:10"></a>
+
+[Watch the demo with sound](docs/promo.mp4) (23 s). The video is made with Remotion; its source is in [`promo/`](promo).
+
 <p>
   <img src="docs/popover.png" width="360" alt="BatterySegments popover: 3:40 left, slices for Chrome, Figma, Xcode, Slack and Music">
   <img src="docs/after-quit.png" width="360" alt="After quitting Chrome: 4:50 left, +1:10 gained">

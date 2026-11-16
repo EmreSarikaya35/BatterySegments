@@ -65,6 +65,24 @@ final class LowPowerModeTests: XCTestCase {
     }
 }
 
+final class MenuBarIconTests: XCTestCase {
+    func testYellowOnlyInLowPowerMode() throws {
+        let battery = BatteryInfo(percent: 60, state: .onBattery(minutes: 100), watts: 5)
+        XCTAssertTrue(menuBarIcon(battery).isTemplate)
+        let icon = menuBarIcon(battery, lowPower: true)
+        XCTAssertFalse(icon.isTemplate) // a template image would lose its color
+        let rep = try XCTUnwrap(NSBitmapImageRep(data: try XCTUnwrap(icon.tiffRepresentation)))
+        let charged = try XCTUnwrap(rep.colorAt(x: 2, y: rep.pixelsHigh / 2)?.usingColorSpace(.sRGB))
+        XCTAssertGreaterThan(charged.redComponent, 0.8)
+        XCTAssertGreaterThan(charged.greenComponent, 0.6)
+        XCTAssertLessThan(charged.blueComponent, 0.3)
+        let dir = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("build/snapshots")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try rep.representation(using: .png, properties: [:])?.write(to: dir.appendingPathComponent("icon-lowpower.png"))
+    }
+}
+
 final class ProcessEnergyTests: XCTestCase {
     private func s(_ ppid: pid_t, energy: UInt64 = 0, cpu: UInt64 = 0) -> ProcSample {
         ProcSample(ppid: ppid, energy: energy, cpu: cpu)

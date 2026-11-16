@@ -21,7 +21,7 @@ Click the battery icon in the menu bar. One battery-shaped bar shows the time yo
 - **Safe**: uses a polite quit only, never force quit. Apps with unsaved work stay open and you get a notice.
 - **No dragging needed**: right-click a slice > `Quit …`, or press `⌫` on a focused slice. VoiceOver labels included.
 - **Settings in the popover**: Launch at Login and a Low Power Mode switch, plus a small quit button. See [the note below](#low-power-mode-switch) on what the switch installs.
-- **Native look**: menu bar icon matches the system battery indicator; Liquid Glass popover on macOS 26+.
+- **Native look**: menu bar icon matches the system battery indicator and turns yellow in Low Power Mode; Liquid Glass popover on macOS 26+.
 - **Stays where you put it**: hold `⌘` and drag the icon to move it in the menu bar; macOS remembers the spot across restarts of the app.
 - **Light on battery itself**: samples only while the popover is open.
 - No account, no network, no dependencies. SwiftUI + AppKit + IOKit only.

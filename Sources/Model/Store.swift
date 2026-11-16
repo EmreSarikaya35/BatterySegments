@@ -12,6 +12,7 @@ final class Store: ObservableObject {
     let demo = CommandLine.arguments.contains("-demo")
 
     @Published private(set) var battery = BatteryInfo()
+    @Published private(set) var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
     @Published private(set) var segments: [Segment] = []
     @Published private(set) var drag = DragCoordinator()
     @Published private(set) var dragOffset = CGSize.zero
@@ -31,6 +32,9 @@ final class Store: ObservableObject {
 
     private init() {
         refreshBattery()
+        NotificationCenter.default.addObserver(forName: .NSProcessInfoPowerStateDidChange, object: nil, queue: .main) { _ in
+            Task { @MainActor in Store.shared.lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled }
+        }
         guard !demo else { return }
         let source = IOPSNotificationCreateRunLoopSource({ _ in
             Task { @MainActor in Store.shared.refreshBattery() }

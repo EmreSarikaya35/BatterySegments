@@ -10,7 +10,7 @@ struct BatterySegmentsApp: App {
                 .onAppear { store.opened() }
                 .onDisappear { store.closed() }
         } label: {
-            Image(nsImage: menuBarIcon(store.battery))
+            Image(nsImage: menuBarIcon(store.battery, lowPower: store.lowPower))
         }
         .menuBarExtraStyle(.window)
     }
@@ -18,8 +18,9 @@ struct BatterySegmentsApp: App {
 
 /// Drawn to match the system battery item (measured from a screenshot of macOS 27):
 /// 23x12 pt body, charged part solid, the rest dimmed, percentage knocked out, small terminal.
+/// In Low Power Mode the charged part turns yellow, like the system item.
 // shortcut: always shows the percentage; the system hides it when "Show Percentage" is off.
-func menuBarIcon(_ battery: BatteryInfo) -> NSImage {
+func menuBarIcon(_ battery: BatteryInfo, lowPower: Bool = false) -> NSImage {
     if battery.state == .noBattery {
         return NSImage(systemSymbolName: "minus.plus.batteryblock", accessibilityDescription: "No battery") ?? NSImage()
     }
@@ -28,7 +29,8 @@ func menuBarIcon(_ battery: BatteryInfo) -> NSImage {
     let image = NSImage(size: NSSize(width: 26, height: 12), flipped: false) { _ in
         guard let context = NSGraphicsContext.current?.cgContext else { return false }
         let body = CGRect(x: 0, y: 0, width: 23, height: 12)
-        let dim = CGColor(gray: 0, alpha: 0.45)
+        // Yellow cannot be a template image, so the dim part is a gray that reads on light and dark bars.
+        let dim = lowPower ? CGColor(gray: 0.5, alpha: 0.6) : CGColor(gray: 0, alpha: 0.45)
 
         context.setFillColor(dim)
         context.addPath(CGPath(roundedRect: CGRect(x: 24, y: 4, width: 1.5, height: 4),
@@ -39,12 +41,13 @@ func menuBarIcon(_ battery: BatteryInfo) -> NSImage {
         context.addPath(CGPath(roundedRect: body, cornerWidth: 3.5, cornerHeight: 3.5, transform: nil))
         context.clip()
         context.fill(body)
-        context.setFillColor(CGColor(gray: 0, alpha: 1))
+        context.setFillColor(lowPower ? NSColor.systemYellow.cgColor : CGColor(gray: 0, alpha: 1))
         context.fill(CGRect(x: 0, y: 0, width: body.width * CGFloat(battery.percent) / 100, height: body.height))
         context.restoreGState()
 
-        // Knock the number (and bolt when plugged in) out of the body.
-        context.setBlendMode(.destinationOut)
+        // Knock the number (and bolt when plugged in) out of the body. On yellow a knocked-out
+        // number would vanish against a light menu bar, so there it is drawn dark instead.
+        context.setBlendMode(lowPower ? .normal : .destinationOut)
         let text = NSAttributedString(string: "\(battery.percent)", attributes: [
             .font: NSFont.systemFont(ofSize: 10, weight: .medium), .foregroundColor: NSColor.black,
         ])
@@ -56,11 +59,11 @@ func menuBarIcon(_ battery: BatteryInfo) -> NSImage {
         if let bolt {
             bolt.draw(in: CGRect(x: x + textSize.width + 0.5, y: (body.height - bolt.size.height) / 2,
                                  width: bolt.size.width, height: bolt.size.height),
-                      from: .zero, operation: .destinationOut, fraction: 1)
+                      from: .zero, operation: lowPower ? .sourceOver : .destinationOut, fraction: 1)
         }
         return true
     }
-    image.isTemplate = true // follows the menu bar's light/dark appearance like the system item
+    image.isTemplate = !lowPower // template follows the menu bar's light/dark appearance like the system item
     image.accessibilityDescription = "Battery \(battery.percent) %"
     return image
 }

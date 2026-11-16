@@ -5,7 +5,6 @@ struct PopoverView: View {
     @ObservedObject var store: Store
     @State private var hoverSettings = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
-    @State private var lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -53,16 +52,12 @@ struct PopoverView: View {
 
             // The switch only follows the system: it flips once macOS reports the change,
             // so cancelling the one-time password prompt leaves it where it was.
-            settingRow("Low Power Mode", isOn: Binding(get: { lowPower }, set: LowPowerMode.set))
+            settingRow("Low Power Mode", isOn: Binding(get: { store.lowPower }, set: LowPowerMode.set))
                 .padding(.top, 2)
             settingRow("Launch at Login", isOn: Binding(get: { launchAtLogin }, set: { on in
                 try? (on ? SMAppService.mainApp.register() : SMAppService.mainApp.unregister())
                 launchAtLogin = SMAppService.mainApp.status == .enabled
             }))
-            .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)
-                .receive(on: RunLoop.main)) { _ in
-                    lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
-            }
 
             HStack(spacing: 4) {
                 Button {
